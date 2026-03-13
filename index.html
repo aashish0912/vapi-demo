@@ -690,7 +690,7 @@
 
       <!-- Left column -->
       <div class="sdp-left">
-        <p class="sdp-eyebrow">VoiceHelden — <span id="niche-label">Vastgoedbeheer</span></p>
+        <p class="sdp-eyebrow">VoiceHelden — <span id="niche-label">Demo</span></p>
         <h1 class="sdp-heading" id="heading"></h1>
         <div class="sdp-featured-image">
           <img id="featured-img" src="" alt="VoiceHelden solution showcase" loading="lazy" />
@@ -814,33 +814,32 @@
 
   <!--
   ══════════════════════════════════════════════════════
-  VAPI VOICE WIDGET — loaded via script tag SDK
+  VAPI VOICE WIDGET — Vapi SDK (GHL-style layout)
   ══════════════════════════════════════════════════════
 
   USAGE — pass config via URL query params:
 
-    ?key=VAPI_PUBLIC_KEY&agent=VAPI_ASSISTANT_ID&niche=vastgoedbeheer
+    ?key=VAPI_PUBLIC_KEY&agent=VAPI_ASSISTANT_ID
 
   REQUIRED params:
     key    : Vapi public API key
     agent  : Vapi assistant ID
 
   OPTIONAL params:
-    niche    : slug for built-in content (vastgoedbeheer | restaurants | makelaars)
-    heading  : custom heading text (overrides niche default)
-    sub      : custom subtitle text
-    image    : custom featured image URL
-    avatar   : custom avatar image URL
-    name     : custom caller/agent display name
-    brand    : brand name shown in eyebrow & footer (default: VoiceHelden)
-    accent   : accent color hex without # (default: 1a5db7)
-    booking  : booking/demo CTA URL
+    heading    : page heading text
+    sub        : subtitle text
+    image      : featured image URL
+    avatar     : agent avatar image URL
+    name       : agent display name (default: AI Assistent)
+    brand      : brand name in eyebrow & footer (default: VoiceHelden)
+    accent     : accent color hex without # (default: 1a5db7)
+    booking    : booking/demo CTA URL
     whitepaper : whitepaper/info CTA URL
 
   EXAMPLE:
-    demo.html?key=abc123&agent=xyz789&niche=restaurants&brand=MijnBedrijf&accent=e63946
+    demo.html?key=abc123&agent=xyz789&name=Cityhop&brand=Cityhop
   ══════════════════════════════════════════════════════
--->
+  -->
 
   <script>
     (function () {
@@ -857,67 +856,44 @@
         document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;color:#486596;text-align:center;padding:40px">'
           + '<div><h2 style="color:#123d7a;margin-bottom:16px">Configuration Required</h2>'
           + '<p>Add <code>?key=YOUR_VAPI_KEY&amp;agent=YOUR_ASSISTANT_ID</code> to the URL.</p>'
-          + '<p style="margin-top:12px;font-size:13px;color:#95a4bc">Optional: <code>&amp;niche=vastgoedbeheer</code> &middot; <code>&amp;brand=YourBrand</code> &middot; <code>&amp;accent=1a5db7</code></p></div></div>';
+          + '<p style="margin-top:12px;font-size:13px;color:#95a4bc">Optional: <code>&amp;name=AgentName</code> &middot; <code>&amp;brand=YourBrand</code> &middot; <code>&amp;accent=1a5db7</code></p></div></div>';
         return;
       }
 
-      var niche = params.get('niche') || 'vastgoedbeheer';
       var brandName = params.get('brand') || 'VoiceHelden';
       var accentColor = '#' + (params.get('accent') || '1a5db7');
       var bookingUrl = params.get('booking') || 'https://koalendar.com/e/voicehelden-gepersonaliseerde-demo';
       var whitepaperUrl = params.get('whitepaper') || '/whitepaper';
       var customAvatar = params.get('avatar') || '';
 
-      /* ── Built-in solution content (fallback) ── */
-      var solutions = {
-        vastgoedbeheer: {
-          heading: 'Vera classificeert en handelt service\u2011oproepen af \u2014 Voorbeeld: Vastgoedbeheer',
-          sub: 'Praktijkvoorbeeld en resultaten van onze voice AI voor vastgoedbeheer.',
-          image: 'https://res.cloudinary.com/dfif6jwth/image/upload/v1772813089/Gemini_Generated_Image_632xd5632xd5632x_wy74is.png',
+      /* ── Agent → content mapping (keyed by Vapi assistant ID) ── */
+      var agentContent = {
+        /* Add known Vapi agents here, e.g.:
+        'ba10fd02-8678-456e-be72-fda6244f0d53': {
+          name: 'Cityhop',
+          heading: 'Cityhop Voice AI Demo',
+          sub: 'Test onze AI-assistent voor Cityhop.',
+          image: '',
           points: [
-            'Vera classificeert en handelt <strong>service\u2011oproepen</strong> af \u2014 voorbeeld: Vastgoedbeheer.',
-            'Filtert <strong>kleine huurder\u2011reparaties</strong>, potenti\u00eble beheervragen, administratieve conflicten en veiligheidsrisico\u2019s.',
-            'Directe live\u2011verbinding bij <strong>noodgevallen</strong> of boze bellers; configureerbaar met callback\u2011SLA en ticketing.',
-            'Demo\u2011resultaat: <strong>12 gesprekken</strong>, 100% correcte verwerking en geen ongewenste escalaties.',
-            'Impact: minder menselijke telefoondruk, betere <strong>prioritisering</strong> en een juridisch veilige workflow.'
-          ]
-        },
-        restaurants: {
-          heading: 'Laat telefoonreserveringen en gastvragen soepel verlopen',
-          sub: 'Verhoog reserveringsacceptatie en verminder no\u2011shows met automatische voice flows.',
-          image: 'https://res.cloudinary.com/dfif6jwth/image/upload/v1772813730/Gemini_Generated_Image_uus4qkuus4qkuus4_cmilo7.png',
-          points: [
-            'Accepteer reserveringen 24/7 met automatische <strong>tafeltoewijzing</strong>.',
-            'Beantwoord snel veelgestelde vragen over <strong>menu</strong> en openingsuren.',
-            'Verstuur directe <strong>bevestigingen</strong> en herinneringen per SMS of e\u2011mail.'
-          ]
-        },
-        makelaars: {
-          heading: 'Kwalificeer leads en plan bezichtigingen moeiteloos',
-          sub: 'Meer afspraken, betere leads: laat de AI intake en planning afhandelen.',
-          image: 'https://res.cloudinary.com/dfif6jwth/image/upload/v1772814022/Gemini_Generated_Image_dw1bnudw1bnudw1b_tcejsd.png',
-          points: [
-            'Kwalificeer inkomende leads met slimme <strong>vraagstelling</strong> en scoring.',
-            'Plan <strong>bezichtigingen</strong> automatisch en stuur details naar de prospect.',
-            'Integreer leaddata direct met uw <strong>CRM</strong> voor opvolging.'
+            'Beantwoordt vragen over <strong>beschikbaarheid</strong> en tarieven.',
+            'Helpt bij het <strong>reserveren</strong> van voertuigen.',
+            'Beschikbaar <strong>24/7</strong> zonder wachttijd.'
           ]
         }
+        */
       };
 
-      var sol = solutions[niche] || solutions.vastgoedbeheer;
-
-      /* Allow query-param overrides for any content field */
-      if (params.get('heading')) sol.heading = params.get('heading');
-      if (params.get('sub')) sol.sub = params.get('sub');
-      if (params.get('image')) sol.image = params.get('image');
-
-      var activeAssistantId = VAPI_ASSISTANT_ID;
-
-      function nicheLabel(s) {
-        if (!s) return 'Vastgoedbeheer';
-        return s.replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
-      }
-      var label = params.get('name') || nicheLabel(niche);
+      /* ── Resolve content: agent lookup first, then param overrides ── */
+      var sol = agentContent[VAPI_ASSISTANT_ID] || {};
+      var label = params.get('name') || sol.name || 'AI Assistent';
+      var heading = params.get('heading') || sol.heading || 'Ervaar onze Voice AI in actie';
+      var sub = params.get('sub') || sol.sub || 'Test onze AI-assistent en ontdek hoe deze uw bedrijf kan helpen.';
+      var image = params.get('image') || sol.image || '';
+      var points = sol.points || [
+        'Beantwoordt oproepen <strong>24/7</strong> zonder wachttijd.',
+        'Classificeert en verwerkt vragen <strong>automatisch</strong>.',
+        'Directe <strong>escalatie</strong> bij urgente situaties.'
+      ];
 
       /* ── Apply accent color via CSS custom property ── */
       if (params.get('accent')) {
@@ -932,9 +908,10 @@
       /* ── Populate page ── */
       document.title = brandName + ' — ' + label + ' Demo';
       document.getElementById('niche-label').textContent = label;
-      document.getElementById('heading').textContent = sol.heading;
-      document.getElementById('sub-text').textContent = sol.sub;
-      document.getElementById('featured-img').src = sol.image;
+      document.getElementById('heading').textContent = heading;
+      document.getElementById('sub-text').textContent = sub;
+      if (image) document.getElementById('featured-img').src = image;
+      else document.querySelector('.sdp-featured-image').style.display = 'none';
       document.getElementById('caller-name').textContent = label;
 
       /* ── CTA links ── */
@@ -952,14 +929,19 @@
       document.querySelector('.sdp-footer p').innerHTML = '&copy; ' + brandName + '. Alle rechten voorbehouden.';
 
       var pointsList = document.getElementById('points-list');
-      sol.points.forEach(function (pt) {
+      points.forEach(function (pt) {
         var li = document.createElement('li');
         li.innerHTML = pt;
         pointsList.appendChild(li);
       });
 
+      /* ═══════════════════════════════════════
+         VAPI SDK — load & wire up
+         ═══════════════════════════════════════ */
+
       /* ── UI state ── */
       var isCallActive = false;
+      var isLoading = false;
       var statusTimer = null;
 
       var callBtn = document.getElementById('call-btn');
@@ -982,52 +964,45 @@
         statusTimer = setTimeout(function () { statusMsg.style.display = 'none'; }, 3000);
       }
 
-      function setActiveUI() {
-        isCallActive = true;
-        phoneIcon.style.display = 'block';
-        phoneIcon.style.transform = 'rotate(135deg)';
-        spinner.style.display = 'none';
-        callBtn.disabled = false;
-        callBtn.classList.remove('start');
-        callBtn.setAttribute('aria-label', 'Ophangen');
-        tapHint.style.display = 'none';
-        ringWrap.classList.remove('pulsing');
-        avatarWrap.classList.remove('ringing');
-        wave.classList.add('sdp-wave--active');
-        callLabel.textContent = 'Tik om op te hangen';
-        callState.textContent = 'Gesprek gaande';
+      function updateUI() {
+        if (isLoading) {
+          phoneIcon.style.display = 'none';
+          spinner.style.display = 'block';
+          callBtn.disabled = true;
+          tapHint.style.display = 'none';
+          ringWrap.classList.remove('pulsing');
+          avatarWrap.classList.remove('ringing');
+          callLabel.textContent = 'Verbinden\u2026';
+          callState.textContent = 'Verbinden\u2026';
+        } else if (isCallActive) {
+          phoneIcon.style.display = 'block';
+          phoneIcon.style.transform = 'rotate(135deg)';
+          spinner.style.display = 'none';
+          callBtn.disabled = false;
+          callBtn.classList.remove('start');
+          callBtn.setAttribute('aria-label', 'Ophangen');
+          tapHint.style.display = 'none';
+          ringWrap.classList.remove('pulsing');
+          avatarWrap.classList.remove('ringing');
+          wave.classList.add('sdp-wave--active');
+          callLabel.textContent = 'Tik om op te hangen';
+          callState.textContent = 'Gesprek gaande';
+        } else {
+          phoneIcon.style.display = 'block';
+          phoneIcon.style.transform = '';
+          spinner.style.display = 'none';
+          callBtn.disabled = false;
+          callBtn.classList.add('start');
+          callBtn.setAttribute('aria-label', 'Bel demo');
+          tapHint.style.display = 'block';
+          ringWrap.classList.add('pulsing');
+          avatarWrap.classList.add('ringing');
+          wave.classList.remove('sdp-wave--active');
+          callLabel.textContent = 'Bel nu gratis';
+          callState.textContent = 'Voice AI Demo';
+        }
       }
 
-      function setIdleUI() {
-        isCallActive = false;
-        phoneIcon.style.display = 'block';
-        phoneIcon.style.transform = '';
-        spinner.style.display = 'none';
-        callBtn.disabled = false;
-        callBtn.classList.add('start');
-        callBtn.setAttribute('aria-label', 'Bel demo');
-        tapHint.style.display = 'block';
-        ringWrap.classList.add('pulsing');
-        avatarWrap.classList.add('ringing');
-        wave.classList.remove('sdp-wave--active');
-        callLabel.textContent = 'Bel nu gratis';
-        callState.textContent = 'Voice AI Demo';
-      }
-
-      function setLoadingUI() {
-        phoneIcon.style.display = 'none';
-        spinner.style.display = 'block';
-        callBtn.disabled = true;
-        tapHint.style.display = 'none';
-        ringWrap.classList.remove('pulsing');
-        avatarWrap.classList.remove('ringing');
-        callLabel.textContent = 'Verbinden\u2026';
-        callState.textContent = 'Verbinden\u2026';
-      }
-
-      /* ═══════════════════════════════════════
-         VAPI SDK — load & wire up
-         ═══════════════════════════════════════ */
       var vapiInstance = null;
 
       (function (d, t) {
@@ -1041,9 +1016,8 @@
         g.onload = function () {
           vapiInstance = window.vapiSDK.run({
             apiKey: VAPI_PUBLIC_KEY,
-            assistant: activeAssistantId,
+            assistant: VAPI_ASSISTANT_ID,
             config: {
-              // hide the default floating Vapi button — we use our own phone UI
               position: 'bottom-right',
               offset: '0px',
               width: '0px',
@@ -1054,19 +1028,24 @@
             }
           });
 
-          /* Listen for Vapi call-state events to sync our phone UI */
           vapiInstance.on('call-start', function () {
-            setActiveUI();
+            isCallActive = true;
+            isLoading = false;
+            updateUI();
             showStatus('Call connected');
           });
 
           vapiInstance.on('call-end', function () {
-            setIdleUI();
+            isCallActive = false;
+            isLoading = false;
+            updateUI();
           });
 
           vapiInstance.on('error', function (e) {
             showStatus('Call failed: ' + (e.message || 'unknown error'), 'error');
-            setIdleUI();
+            isCallActive = false;
+            isLoading = false;
+            updateUI();
           });
         };
 
@@ -1084,16 +1063,19 @@
 
         if (isCallActive) {
           vapiInstance.stop();
-          setIdleUI();
+          isCallActive = false;
+          isLoading = false;
+          updateUI();
         } else {
-          setLoadingUI();
+          isLoading = true;
+          updateUI();
           showStatus('Verbinden...');
-          vapiInstance.start(activeAssistantId);
+          vapiInstance.start(VAPI_ASSISTANT_ID);
         }
       });
 
       /* initial render */
-      setIdleUI();
+      updateUI();
     })();
   </script>
 
