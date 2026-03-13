@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceHelden — Solution Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body.sdp-active chat-widget:not(#lc-chat-widget-sdp) {
+      display: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
+    }
+
+    /* ── Reset / page shell ── */
+    .sdp-root {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(160deg, #f2f7ff 0%, #eaf0f8 55%, #dce8f8 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 0 20px 64px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sdp-root::before,
+    .sdp-root::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .sdp-root::before {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(26, 93, 183, 0.07) 0%, transparent 70%);
+      top: -180px;
+      right: -140px;
+    }
+
+    .sdp-root::after {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(26, 93, 183, 0.05) 0%, transparent 70%);
+      bottom: 40px;
+      left: -100px;
+    }
+
+    /* ── Main content grid ── */
+    .sdp-content {
+      width: 100%;
+      max-width: 960px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 56px;
+      align-items: center;
+      margin-top: 64px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 780px) {
+      .sdp-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        margin-top: 44px;
+      }
+    }
+
+    /* ── Featured image ── */
+    .sdp-featured-image {
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(18, 61, 122, 0.12);
+      margin: 28px 0 20px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sdp-featured-image:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px rgba(18, 61, 122, 0.16);
+    }
+
+    .sdp-featured-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* ── Left column ── */
+    .sdp-eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #1a5db7;
+      margin-bottom: 14px;
+    }
+
+    .sdp-heading {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      color: #123d7a;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin: 0 0 16px;
+    }
+
+    .sdp-sub {
+      font-size: 16px;
+      color: #486596;
+      line-height: 1.7;
+      margin: 0 0 40px;
+      max-width: 440px;
+    }
+
+    .sdp-points {
+      list-style: disc;
+      padding-left: 18px;
+      margin: 0 0 18px;
+      color: #123d7a;
+    }
+
+    .sdp-points li {
+      margin-bottom: 10px;
+      color: #486596;
+    }
+
+    /* ── CTA buttons ── */
+    .sdp-contact-actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .sdp-contact-btn,
+    .sdp-try-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .sdp-contact-btn {
+      background: #1a5db7;
+      color: white;
+    }
+
+    .sdp-contact-btn:hover {
+      background: #145a9d;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    .sdp-try-btn {
+      background: #10b981;
+      color: white;
+    }
+
+    .sdp-try-btn:hover {
+      background: #059669;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── Right: phone widget ── */
+    .sdp-phone-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .sdp-demo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 16px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #059669;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .sdp-demo-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: sdp-pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes sdp-pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(26, 93, 183, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(26, 93, 183, 0);
+      }
+    }
+
+    .sdp-phone-glow {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(26, 93, 183, 0.18) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .sdp-phone {
+      width: 280px;
+      background: #0d1120;
+      border-radius: 46px;
+      padding: 14px 10px;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.09),
+        0 40px 80px rgba(10, 30, 80, 0.35),
+        0 10px 30px rgba(18, 61, 122, 0.18);
+      position: relative;
+    }
+
+    .sdp-phone-notch {
+      width: 90px;
+      height: 26px;
+      background: #0d1120;
+      border-radius: 0 0 18px 18px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .sdp-phone-screen {
+      background: linear-gradient(165deg, #1e3a6e 0%, #0f1c3a 55%, #0a1228 100%);
+      border-radius: 36px;
+      overflow: hidden;
+      padding: 18px 20px 30px;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .sdp-status-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 18px;
+      padding: 0 4px;
+    }
+
+    .sdp-call-state {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 20px;
+    }
+
+    /* Avatar */
+    .sdp-avatar-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .sdp-avatar-wrap.ringing::before,
+    .sdp-avatar-wrap.ringing::after {
+      content: '';
+      position: absolute;
+      width: 88px;
+      height: 88px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      border-radius: 50%;
+      border: 2px solid rgba(16, 185, 129, 0.4);
+      animation: sdp-avatar-ring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+
+    .sdp-avatar-wrap.ringing::after {
+      animation-delay: 1.2s;
+    }
+
+    @keyframes sdp-avatar-ring {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.65;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) scale(1.7);
+        opacity: 0;
+      }
+    }
+
+    .sdp-caller-avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.1), 0 8px 28px rgba(0, 0, 0, 0.4);
+      flex-shrink: 0;
+    }
+
+    .sdp-caller-avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .sdp-caller-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 8px;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+
+    .sdp-ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 11px 4px 9px;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #34d399;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+
+    .sdp-ai-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: sdp-pulse 1.8s ease-in-out infinite;
+    }
+
+    /* Wave */
+    .sdp-wave {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 32px;
+      margin-bottom: 24px;
+    }
+
+    .sdp-wave-bar {
+      width: 3px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.15);
+      transition: background 0.4s;
+    }
+
+    .sdp-wave--active .sdp-wave-bar {
+      background: rgba(52, 211, 153, 0.85);
+      animation: sdp-wave 1.2s ease-in-out infinite;
+    }
+
+    .sdp-wave-bar:nth-child(1) {
+      height: 10px;
+      animation-delay: 0s;
+    }
+
+    .sdp-wave-bar:nth-child(2) {
+      height: 20px;
+      animation-delay: 0.1s;
+    }
+
+    .sdp-wave-bar:nth-child(3) {
+      height: 14px;
+      animation-delay: 0.2s;
+    }
+
+    .sdp-wave-bar:nth-child(4) {
+      height: 28px;
+      animation-delay: 0.3s;
+    }
+
+    .sdp-wave-bar:nth-child(5) {
+      height: 18px;
+      animation-delay: 0.15s;
+    }
+
+    .sdp-wave-bar:nth-child(6) {
+      height: 24px;
+      animation-delay: 0.4s;
+    }
+
+    .sdp-wave-bar:nth-child(7) {
+      height: 12px;
+      animation-delay: 0.25s;
+    }
+
+    .sdp-wave-bar:nth-child(8) {
+      height: 20px;
+      animation-delay: 0.35s;
+    }
+
+    .sdp-wave-bar:nth-child(9) {
+      height: 16px;
+      animation-delay: 0.1s;
+    }
+
+    .sdp-wave-bar:nth-child(10) {
+      height: 8px;
+      animation-delay: 0.45s;
+    }
+
+    @keyframes sdp-wave {
+
+      0%,
+      100% {
+        transform: scaleY(0.35);
+        opacity: 0.5;
+      }
+
+      50% {
+        transform: scaleY(1.4);
+        opacity: 1;
+      }
+    }
+
+    /* Controls */
+    .sdp-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .sdp-tap-hint {
+      font-size: 10.5px;
+      color: rgba(255, 255, 255, 0.38);
+      letter-spacing: 0.03em;
+      margin-bottom: 2px;
+      text-align: center;
+    }
+
+    .sdp-call-ring-wrap {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sdp-call-ring-wrap.pulsing::before,
+    .sdp-call-ring-wrap.pulsing::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: 2px solid rgba(16, 185, 129, 0.45);
+      animation: sdp-ring 2.2s ease-out infinite;
+      pointer-events: none;
+    }
+
+    .sdp-call-ring-wrap.pulsing::after {
+      animation-delay: 1.1s;
+    }
+
+    @keyframes sdp-ring {
+      0% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+
+      100% {
+        transform: scale(1.9);
+        opacity: 0;
+      }
+    }
+
+    .sdp-ctrl-btn {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sdp-ctrl-btn:hover:not(:disabled) {
+      transform: scale(1.08);
+    }
+
+    .sdp-ctrl-btn--end {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.55);
+    }
+
+    .sdp-ctrl-btn--end:hover:not(:disabled) {
+      box-shadow: 0 6px 28px rgba(239, 68, 68, 0.7);
+    }
+
+    .sdp-ctrl-btn.start {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 4px 26px rgba(16, 185, 129, 0.65);
+    }
+
+    .sdp-ctrl-btn.start:hover:not(:disabled) {
+      box-shadow: 0 8px 36px rgba(16, 185, 129, 0.85);
+    }
+
+    .sdp-call-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+
+    .sdp-spinner {
+      width: 26px;
+      height: 26px;
+      border: 2.5px solid rgba(255, 255, 255, 0.25);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: sdp-spin 0.75s linear infinite;
+    }
+
+    @keyframes sdp-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .sdp-status-msg {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .sdp-btn-right {
+      position: absolute;
+      right: -3px;
+      top: 110px;
+      width: 3px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 0 3px 3px 0;
+    }
+
+    .sdp-btn-left1,
+    .sdp-btn-left2 {
+      position: absolute;
+      left: -3px;
+      width: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px 0 0 3px;
+    }
+
+    .sdp-btn-left1 {
+      top: 90px;
+      height: 36px;
+    }
+
+    .sdp-btn-left2 {
+      top: 140px;
+      height: 56px;
+    }
+
+    /* Stat chips */
+    .sdp-chips-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .sdp-stat-chip {
+      background: white;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #123d7a;
+      box-shadow: 0 4px 16px rgba(18, 61, 122, 0.12);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(26, 93, 183, 0.1);
+    }
+
+    /* Footer */
+    .sdp-footer {
+      margin-top: 56px;
+      font-size: 12.5px;
+      color: #95a4bc;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sdp-footer a {
+      color: #6e80a3;
+      text-decoration: none;
+    }
+
+    .sdp-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Hide the default Vapi floating button — we use our own ── */
+    #vapi-support-btn {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body class="sdp-active">
+
+  <div class="sdp-root">
+
+    <!-- Main grid -->
+    <div class="sdp-content">
+
+      <!-- Left column -->
+      <div class="sdp-left">
+        <p class="sdp-eyebrow">VoiceHelden — <span id="niche-label">Vastgoedbeheer</span></p>
+        <h1 class="sdp-heading" id="heading"></h1>
+        <div class="sdp-featured-image">
+          <img id="featured-img" src="" alt="VoiceHelden solution showcase" loading="lazy" />
+        </div>
+        <p class="sdp-sub" id="sub-text"></p>
+
+        <div class="sdp-info">
+          <div class="sdp-features">
+            <ul class="sdp-points" id="points-list"></ul>
+          </div>
+          <div class="sdp-contact-actions">
+            <a href="#" id="cta-whitepaper" class="sdp-contact-btn">Ontvang meer informatie</a>
+            <a href="#" id="cta-booking" rel="noopener noreferrer" class="sdp-try-btn">
+              Boek een demo
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style="margin-left:6px">
+                <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column — phone widget -->
+      <div class="sdp-phone-wrap">
+
+        <div class="sdp-demo-badge">
+          <span class="sdp-demo-badge-dot"></span>
+          Live Demo — Probeer het nu
+        </div>
+
+        <div class="sdp-phone-glow"></div>
+
+        <div class="sdp-phone">
+          <div class="sdp-btn-right"></div>
+          <div class="sdp-btn-left1"></div>
+          <div class="sdp-btn-left2"></div>
+          <div class="sdp-phone-notch"></div>
+
+          <div class="sdp-phone-screen">
+            <div class="sdp-status-bar">
+              <span>9:41</span>
+              <span>●●●</span>
+            </div>
+
+            <p class="sdp-call-state" id="call-state">Voice AI Demo</p>
+
+            <div class="sdp-avatar-wrap ringing" id="avatar-wrap">
+              <div class="sdp-caller-avatar">
+                <img src="https://assets.cdn.filesafe.space/fSbZgkQ6O3PpEDfstPtb/media/699f039018feca5ade564e19.webp"
+                  alt="Agent avatar" class="sdp-caller-avatar-img" />
+              </div>
+            </div>
+
+            <p class="sdp-caller-name" id="caller-name"></p>
+
+            <div class="sdp-ai-badge">
+              <span class="sdp-ai-badge-dot"></span>
+              AI Assistent
+            </div>
+
+            <div class="sdp-status-msg" id="status-msg" style="display:none"></div>
+
+            <div class="sdp-wave" id="wave">
+              <div class="sdp-wave-bar"></div>
+              <div class="sdp-wave-bar"></div>
+              <div class="sdp-wave-bar"></div>
+              <div class="sdp-wave-bar"></div>
+              <div class="sdp-wave-bar"></div>
+              <div class="sdp-wave-bar"></div>
+              <div class="sdp-wave-bar"></div>
+              <div class="sdp-wave-bar"></div>
+              <div class="sdp-wave-bar"></div>
+              <div class="sdp-wave-bar"></div>
+            </div>
+
+            <!-- Controls -->
+            <div class="sdp-controls">
+              <p class="sdp-tap-hint" id="tap-hint">Tik de knop om de AI te starten</p>
+              <div class="sdp-call-ring-wrap pulsing" id="ring-wrap">
+                <button class="sdp-ctrl-btn sdp-ctrl-btn--end start" id="call-btn" aria-label="Bel demo">
+                  <svg id="phone-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white"
+                    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M10.68 13.31a16 16 0 003.41 2.6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.45 19.45 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 002.59 3.4z" />
+                  </svg>
+                  <div id="spinner" class="sdp-spinner" style="display:none"></div>
+                </button>
+              </div>
+              <span class="sdp-call-label" id="call-label">Bel nu gratis</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stat chips -->
+        <div class="sdp-chips-row">
+          <div class="sdp-stat-chip">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none">
+              <path d="M10 2l2.39 4.84L18 7.64l-4 3.9.94 5.46L10 14.27 5.06 17l.94-5.46-4-3.9 5.61-.8z"
+                fill="#10b981" />
+            </svg>
+            100% nauwkeurig
+          </div>
+          <div class="sdp-stat-chip">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none">
+              <path d="M10 2v6l4 2" stroke="#1a5db7" stroke-width="2" stroke-linecap="round" />
+              <circle cx="10" cy="10" r="8" stroke="#1a5db7" stroke-width="2" />
+            </svg>
+            Reageert in &lt;0.5s
+          </div>
+        </div>
+      </div>
+
+    </div><!-- .sdp-content -->
+
+    <div class="sdp-footer">
+      <p>&copy; VoiceHelden. Alle rechten voorbehouden.</p>
+    </div>
+
+  </div><!-- .sdp-root -->
+
+  <!--
+  ══════════════════════════════════════════════════════
+  VAPI VOICE WIDGET — loaded via script tag SDK
+  ══════════════════════════════════════════════════════
+
+  USAGE — pass config via URL query params:
+
+    ?key=VAPI_PUBLIC_KEY&agent=VAPI_ASSISTANT_ID&niche=vastgoedbeheer
+
+  REQUIRED params:
+    key    : Vapi public API key
+    agent  : Vapi assistant ID
+
+  OPTIONAL params:
+    niche    : slug for built-in content (vastgoedbeheer | restaurants | makelaars)
+    heading  : custom heading text (overrides niche default)
+    sub      : custom subtitle text
+    image    : custom featured image URL
+    avatar   : custom avatar image URL
+    name     : custom caller/agent display name
+    brand    : brand name shown in eyebrow & footer (default: VoiceHelden)
+    accent   : accent color hex without # (default: 1a5db7)
+    booking  : booking/demo CTA URL
+    whitepaper : whitepaper/info CTA URL
+
+  EXAMPLE:
+    demo.html?key=abc123&agent=xyz789&niche=restaurants&brand=MijnBedrijf&accent=e63946
+  ══════════════════════════════════════════════════════
+-->
+
+  <script>
+    (function () {
+      /* ═══════════════════════════════════════
+         READ CONFIG FROM URL QUERY PARAMS
+         ═══════════════════════════════════════ */
+      var params = new URLSearchParams(window.location.search);
+
+      var VAPI_PUBLIC_KEY = params.get('key') || '';
+      var VAPI_ASSISTANT_ID = params.get('agent') || '';
+
+      /* Validate required params */
+      if (!VAPI_PUBLIC_KEY || !VAPI_ASSISTANT_ID) {
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;color:#486596;text-align:center;padding:40px">'
+          + '<div><h2 style="color:#123d7a;margin-bottom:16px">Configuration Required</h2>'
+          + '<p>Add <code>?key=YOUR_VAPI_KEY&amp;agent=YOUR_ASSISTANT_ID</code> to the URL.</p>'
+          + '<p style="margin-top:12px;font-size:13px;color:#95a4bc">Optional: <code>&amp;niche=vastgoedbeheer</code> &middot; <code>&amp;brand=YourBrand</code> &middot; <code>&amp;accent=1a5db7</code></p></div></div>';
+        return;
+      }
+
+      var niche = params.get('niche') || 'vastgoedbeheer';
+      var brandName = params.get('brand') || 'VoiceHelden';
+      var accentColor = '#' + (params.get('accent') || '1a5db7');
+      var bookingUrl = params.get('booking') || 'https://koalendar.com/e/voicehelden-gepersonaliseerde-demo';
+      var whitepaperUrl = params.get('whitepaper') || '/whitepaper';
+      var customAvatar = params.get('avatar') || '';
+
+      /* ── Built-in solution content (fallback) ── */
+      var solutions = {
+        vastgoedbeheer: {
+          heading: 'Vera classificeert en handelt service\u2011oproepen af \u2014 Voorbeeld: Vastgoedbeheer',
+          sub: 'Praktijkvoorbeeld en resultaten van onze voice AI voor vastgoedbeheer.',
+          image: 'https://res.cloudinary.com/dfif6jwth/image/upload/v1772813089/Gemini_Generated_Image_632xd5632xd5632x_wy74is.png',
+          points: [
+            'Vera classificeert en handelt <strong>service\u2011oproepen</strong> af \u2014 voorbeeld: Vastgoedbeheer.',
+            'Filtert <strong>kleine huurder\u2011reparaties</strong>, potenti\u00eble beheervragen, administratieve conflicten en veiligheidsrisico\u2019s.',
+            'Directe live\u2011verbinding bij <strong>noodgevallen</strong> of boze bellers; configureerbaar met callback\u2011SLA en ticketing.',
+            'Demo\u2011resultaat: <strong>12 gesprekken</strong>, 100% correcte verwerking en geen ongewenste escalaties.',
+            'Impact: minder menselijke telefoondruk, betere <strong>prioritisering</strong> en een juridisch veilige workflow.'
+          ]
+        },
+        restaurants: {
+          heading: 'Laat telefoonreserveringen en gastvragen soepel verlopen',
+          sub: 'Verhoog reserveringsacceptatie en verminder no\u2011shows met automatische voice flows.',
+          image: 'https://res.cloudinary.com/dfif6jwth/image/upload/v1772813730/Gemini_Generated_Image_uus4qkuus4qkuus4_cmilo7.png',
+          points: [
+            'Accepteer reserveringen 24/7 met automatische <strong>tafeltoewijzing</strong>.',
+            'Beantwoord snel veelgestelde vragen over <strong>menu</strong> en openingsuren.',
+            'Verstuur directe <strong>bevestigingen</strong> en herinneringen per SMS of e\u2011mail.'
+          ]
+        },
+        makelaars: {
+          heading: 'Kwalificeer leads en plan bezichtigingen moeiteloos',
+          sub: 'Meer afspraken, betere leads: laat de AI intake en planning afhandelen.',
+          image: 'https://res.cloudinary.com/dfif6jwth/image/upload/v1772814022/Gemini_Generated_Image_dw1bnudw1bnudw1b_tcejsd.png',
+          points: [
+            'Kwalificeer inkomende leads met slimme <strong>vraagstelling</strong> en scoring.',
+            'Plan <strong>bezichtigingen</strong> automatisch en stuur details naar de prospect.',
+            'Integreer leaddata direct met uw <strong>CRM</strong> voor opvolging.'
+          ]
+        }
+      };
+
+      var sol = solutions[niche] || solutions.vastgoedbeheer;
+
+      /* Allow query-param overrides for any content field */
+      if (params.get('heading')) sol.heading = params.get('heading');
+      if (params.get('sub')) sol.sub = params.get('sub');
+      if (params.get('image')) sol.image = params.get('image');
+
+      var activeAssistantId = VAPI_ASSISTANT_ID;
+
+      function nicheLabel(s) {
+        if (!s) return 'Vastgoedbeheer';
+        return s.replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+      }
+      var label = params.get('name') || nicheLabel(niche);
+
+      /* ── Apply accent color via CSS custom property ── */
+      if (params.get('accent')) {
+        var style = document.createElement('style');
+        style.textContent = '.sdp-eyebrow{color:' + accentColor + '}'
+          + '.sdp-contact-btn{background:' + accentColor + '}'
+          + '.sdp-contact-btn:hover{background:' + accentColor + ';filter:brightness(0.9)}'
+          + '.sdp-heading{color:' + accentColor + '}';
+        document.head.appendChild(style);
+      }
+
+      /* ── Populate page ── */
+      document.title = brandName + ' — ' + label + ' Demo';
+      document.getElementById('niche-label').textContent = label;
+      document.getElementById('heading').textContent = sol.heading;
+      document.getElementById('sub-text').textContent = sol.sub;
+      document.getElementById('featured-img').src = sol.image;
+      document.getElementById('caller-name').textContent = label;
+
+      /* ── CTA links ── */
+      document.getElementById('cta-whitepaper').href = whitepaperUrl;
+      document.getElementById('cta-booking').href = bookingUrl;
+
+      /* ── Custom avatar ── */
+      if (customAvatar) {
+        document.querySelector('.sdp-caller-avatar-img').src = customAvatar;
+      }
+
+      /* ── Brand name in eyebrow & footer ── */
+      var eyebrow = document.querySelector('.sdp-eyebrow');
+      eyebrow.innerHTML = brandName + ' — <span id="niche-label">' + label + '</span>';
+      document.querySelector('.sdp-footer p').innerHTML = '&copy; ' + brandName + '. Alle rechten voorbehouden.';
+
+      var pointsList = document.getElementById('points-list');
+      sol.points.forEach(function (pt) {
+        var li = document.createElement('li');
+        li.innerHTML = pt;
+        pointsList.appendChild(li);
+      });
+
+      /* ── UI state ── */
+      var isCallActive = false;
+      var statusTimer = null;
+
+      var callBtn = document.getElementById('call-btn');
+      var phoneIcon = document.getElementById('phone-icon');
+      var spinner = document.getElementById('spinner');
+      var callLabel = document.getElementById('call-label');
+      var callState = document.getElementById('call-state');
+      var tapHint = document.getElementById('tap-hint');
+      var ringWrap = document.getElementById('ring-wrap');
+      var avatarWrap = document.getElementById('avatar-wrap');
+      var wave = document.getElementById('wave');
+      var statusMsg = document.getElementById('status-msg');
+
+      function showStatus(msg, type) {
+        type = type || '';
+        statusMsg.textContent = msg;
+        statusMsg.style.display = 'block';
+        statusMsg.style.background = type === 'error' ? 'rgba(220,38,38,0.9)' : 'rgba(0,0,0,0.7)';
+        clearTimeout(statusTimer);
+        statusTimer = setTimeout(function () { statusMsg.style.display = 'none'; }, 3000);
+      }
+
+      function setActiveUI() {
+        isCallActive = true;
+        phoneIcon.style.display = 'block';
+        phoneIcon.style.transform = 'rotate(135deg)';
+        spinner.style.display = 'none';
+        callBtn.disabled = false;
+        callBtn.classList.remove('start');
+        callBtn.setAttribute('aria-label', 'Ophangen');
+        tapHint.style.display = 'none';
+        ringWrap.classList.remove('pulsing');
+        avatarWrap.classList.remove('ringing');
+        wave.classList.add('sdp-wave--active');
+        callLabel.textContent = 'Tik om op te hangen';
+        callState.textContent = 'Gesprek gaande';
+      }
+
+      function setIdleUI() {
+        isCallActive = false;
+        phoneIcon.style.display = 'block';
+        phoneIcon.style.transform = '';
+        spinner.style.display = 'none';
+        callBtn.disabled = false;
+        callBtn.classList.add('start');
+        callBtn.setAttribute('aria-label', 'Bel demo');
+        tapHint.style.display = 'block';
+        ringWrap.classList.add('pulsing');
+        avatarWrap.classList.add('ringing');
+        wave.classList.remove('sdp-wave--active');
+        callLabel.textContent = 'Bel nu gratis';
+        callState.textContent = 'Voice AI Demo';
+      }
+
+      function setLoadingUI() {
+        phoneIcon.style.display = 'none';
+        spinner.style.display = 'block';
+        callBtn.disabled = true;
+        tapHint.style.display = 'none';
+        ringWrap.classList.remove('pulsing');
+        avatarWrap.classList.remove('ringing');
+        callLabel.textContent = 'Verbinden\u2026';
+        callState.textContent = 'Verbinden\u2026';
+      }
+
+      /* ═══════════════════════════════════════
+         VAPI SDK — load & wire up
+         ═══════════════════════════════════════ */
+      var vapiInstance = null;
+
+      (function (d, t) {
+        var g = d.createElement(t);
+        var s = d.getElementsByTagName(t)[0];
+        g.src = 'https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js';
+        g.defer = true;
+        g.async = true;
+        s.parentNode.insertBefore(g, s);
+
+        g.onload = function () {
+          vapiInstance = window.vapiSDK.run({
+            apiKey: VAPI_PUBLIC_KEY,
+            assistant: activeAssistantId,
+            config: {
+              // hide the default floating Vapi button — we use our own phone UI
+              position: 'bottom-right',
+              offset: '0px',
+              width: '0px',
+              height: '0px',
+              idle: { color: 'rgba(0,0,0,0)', type: 'pill', title: '', subtitle: '', icon: '' },
+              active: { color: 'rgba(0,0,0,0)', type: 'pill', title: '', subtitle: '', icon: '' },
+              loading: { color: 'rgba(0,0,0,0)', type: 'pill', title: '', subtitle: '', icon: '' }
+            }
+          });
+
+          /* Listen for Vapi call-state events to sync our phone UI */
+          vapiInstance.on('call-start', function () {
+            setActiveUI();
+            showStatus('Call connected');
+          });
+
+          vapiInstance.on('call-end', function () {
+            setIdleUI();
+          });
+
+          vapiInstance.on('error', function (e) {
+            showStatus('Call failed: ' + (e.message || 'unknown error'), 'error');
+            setIdleUI();
+          });
+        };
+
+        g.onerror = function () {
+          showStatus('Failed to load Voice SDK', 'error');
+        };
+      })(document, 'script');
+
+      /* ── Button click → start / stop Vapi call ── */
+      callBtn.addEventListener('click', function () {
+        if (!vapiInstance) {
+          showStatus('Voice SDK nog niet geladen, probeer opnieuw.', 'error');
+          return;
+        }
+
+        if (isCallActive) {
+          vapiInstance.stop();
+          setIdleUI();
+        } else {
+          setLoadingUI();
+          showStatus('Verbinden...');
+          vapiInstance.start(activeAssistantId);
+        }
+      });
+
+      /* initial render */
+      setIdleUI();
+    })();
+  </script>
+
+</body>
+
+</html>
